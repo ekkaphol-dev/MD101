@@ -35,6 +35,37 @@ src/
 └── hooks/                # Custom React hooks
 ```
 
+## Security Rules
+
+### Authentication & Authorization
+
+- ทุก route ใน `(dashboard)/` ต้องผ่าน middleware auth check
+- ใช้ `getServerSession()` ใน Server Component — ห้ามเชื่อถือ client-side session โดยตรง
+- ตรวจสอบ role/permission ในทุก API route handler ก่อน return ข้อมูล
+
+### Input Validation
+
+- Validate ทุก user input ด้วย Zod ก่อนนำไปใช้หรือ query database
+- ห้ามใช้ raw SQL string concatenation — ใช้ Prisma query เสมอเพื่อป้องกัน SQL injection
+- Sanitize ข้อมูลก่อน render ใน HTML เพื่อป้องกัน XSS
+
+### Secrets & Environment
+
+- ห้าม hardcode secret, API key หรือ credential ในโค้ดเด็ดขาด
+- `.env.local` ใช้สำหรับ local dev เท่านั้น — ห้าม commit
+- ตัวแปรที่ขึ้นต้นด้วย `NEXT_PUBLIC_` จะ expose ไปฝั่ง client — ต้องไม่ใช่ข้อมูลลับ
+
+### API Security
+
+- ทุก API route ต้องเช็ค HTTP method ที่ยอมรับก่อนประมวลผล
+- Response ต้องไม่รั่ว stack trace หรือ internal error ออกไปยัง client
+- ใส่ rate limiting สำหรับ endpoint ที่ sensitive เช่น login, data export
+
+### Dependencies
+
+- รัน `npm audit` ก่อน merge ทุกครั้ง
+- อัปเดต dependency ที่มี critical vulnerability ทันที
+
 ## Coding Rules
 
 - ใช้ TypeScript strict mode — ห้าม `any` โดยไม่มีเหตุผล
@@ -64,6 +95,16 @@ npm run lint
 npx prisma migrate dev
 npx prisma studio
 ```
+
+## Workflow
+
+ก่อนแก้โค้ดทำตามนี้
+
+1. อ่านไฟล์ที่เกี่ยวข้องก่อน
+2. อธิบายแผนการแก้แบบสั้นๆ
+3. แก้เฉพาะไฟล์ที่จำเป็น
+4. ตรวจว่าโค้ดไม่กระทบส่วนอื่น (`npm run type-check && npm run lint`)
+5. สรุปสิ่งที่แก้หลังทำเสร็จ
 
 ## Architecture
 
